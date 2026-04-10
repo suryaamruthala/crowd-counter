@@ -23,8 +23,8 @@ detection_thread = None
 
 ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-TWILIO_SMS_NUMBER = '+12697784463'  # Twilio SMS-enabled number
-TARGET_SMS_NUMBER = ' your mobile number '  # Your mobile number 
+TWILIO_SMS_NUMBER = os.getenv("TWILIO_SMS_NUMBER")
+TARGET_SMS_NUMBER = os.getenv("TARGET_SMS_NUMBER")
 
 client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 

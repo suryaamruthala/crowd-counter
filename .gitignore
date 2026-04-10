@@ -1,3 +1,14 @@
-echo .env >> .gitignore
-echo *.pt >> .gitignore
-echo __pycache__/ >> .gitignore
+# Python
+__pycache__/
+*.pyc
+
+# Models
+*.pt
+*.onnx
+
+# Environment
+venv/
+.env
+
+# VS Code
+.vscode/
