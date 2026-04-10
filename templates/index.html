@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crowd detection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #000;
+      overflow: hidden;
+    }
+
+    /* Fullscreen video */
+    #video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+      filter: brightness(0.7) contrast(1.2);
+    }
+
+    /* Overlay container */
+    .overlay {
+      position: absolute;
+      top: 20px;
+      left: 80%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      color: #fff;
+    }
+
+    h1 {
+      font-size: 2rem;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px rgba(0, 255, 200, 0.7);
+      margin-bottom: 15px;
+    }
+
+    /* Count Display */
+    #countBox {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      padding: 15px 25px;
+      border-radius: 15px;
+      margin: 15px 0;
+      box-shadow: 0 0 25px rgba(0, 255, 200, 0.4);
+    }
+
+    #countLabel {
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    #count {
+      font-size: 4rem;
+      font-weight: bold;
+      color: #00ffcc;
+      text-shadow: 0 0 20px rgba(0, 255, 200, 0.9);
+      margin-top: 5px;
+    }
+
+    /* Buttons */
+    .controls {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 12px 35px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #0f0f1e;
+      background: linear-gradient(90deg, #00ffcc, #00b3ff);
+      box-shadow: 0 0 15px rgba(0, 255, 200, 0.7);
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 0 25px rgba(0, 255, 200, 1);
+    }
+
+    button:disabled {
+      background: #555;
+      color: #999;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      h1 { font-size: 1.5rem; }
+      #count { font-size: 2.5rem; }
+      button { font-size: 0.9rem; padding: 10px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Fullscreen Video -->
+  <img id="video" src="{{ url_for('video_feed') }}" alt="Webcam stream">
+
+  <!-- Overlay Controls -->
+  <div class="overlay">
+    <h1> Crowd Counter</h1>
+
+    <div id="countBox">
+      <div id="countLabel">Current People Count:</div>
+      <div id="count">0</div>
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" onclick="startCounting()">Start</button>
+      <button id="stopBtn" onclick="stopCounting()" disabled>Stop</button>
+    </div>
+  </div>
+
+  <script>
+    let started = false;
+    function startCounting() {
+      fetch('/start', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'started' || data.status === 'already running') {
+            started = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+          }
+        });
+    }
+    function stopCounting() {
+      fetch('/shutdown', { method: 'POST' })
+        .then(response => response.text())
+        .then(() => {
+          started = false;
+          document.getElementById('startBtn').disabled = false;
+          document.getElementById('stopBtn').disabled = true;
+        });
+    }
+    function updateCount() {
+      if (started) {
+        fetch('/count')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('count').textContent = data.count;
+          });
+      }
+    }
+    setInterval(updateCount, 1000);
+  </script>
+</body>
+</html>

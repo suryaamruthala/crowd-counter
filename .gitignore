@@ -1,0 +1,3 @@
+echo .env >> .gitignore
+echo *.pt >> .gitignore
+echo __pycache__/ >> .gitignore
